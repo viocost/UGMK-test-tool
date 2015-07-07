@@ -28,6 +28,7 @@ namespace UMMC_tk_network_test_tool
             // Ping's the local machine.
             Ping pingSender = new Ping ();
             IPAddress address = IPAddress.Parse("185.13.132.211");
+           
             PingReply reply = pingSender.Send (address);
 
             if (reply.Status == IPStatus.Success)
@@ -57,7 +58,17 @@ namespace UMMC_tk_network_test_tool
 
         private void button1_Click(object sender, EventArgs e)
         {
-            LocalPing();
+
+            for (int i = 0; i < 5; i++)
+            {
+                LocalPing();
+                System.Threading.Thread.Sleep(2000);
+            }
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
 
         }

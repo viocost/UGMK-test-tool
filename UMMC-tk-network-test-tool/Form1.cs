@@ -34,10 +34,14 @@ namespace UMMC_tk_network_test_tool
             {
                 // invoke main test form
                 DialogResult dialogResult = MessageBox.Show("OK", "OK", MessageBoxButtons.OK);
-               // this.Close();
+             
+
+                this.Hide();
                 main_test_form MainTest = new main_test_form();
-                MainTest.Activate();
+                MainTest.Closed += (s, args) => this.Close();
                 MainTest.Show();
+                
+               
             }
             else
             {
