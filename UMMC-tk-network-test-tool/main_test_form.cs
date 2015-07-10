@@ -28,7 +28,7 @@ namespace UMMC_tk_network_test_tool
             // Ping's the local machine.
             Ping pingSender = new Ping ();
             IPAddress address = IPAddress.Parse("185.13.132.211");
-           
+            
             PingReply reply = pingSender.Send (address);
 
             if (reply.Status == IPStatus.Success)

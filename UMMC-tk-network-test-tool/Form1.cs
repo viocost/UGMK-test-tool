@@ -19,7 +19,7 @@ namespace UMMC_tk_network_test_tool
         private string login = "login";
         private string password = "password";
 
-       
+        
 
 
 
@@ -33,9 +33,7 @@ namespace UMMC_tk_network_test_tool
             if (this.login_text_box.Text.Equals(this.login) && this.password_text_box.Text.Equals(this.password))
             {
                 // invoke main test form
-                DialogResult dialogResult = MessageBox.Show("OK", "OK", MessageBoxButtons.OK);
-             
-
+                
                 this.Hide();
                 main_test_form MainTest = new main_test_form();
                 MainTest.Closed += (s, args) => this.Close();
@@ -70,7 +68,7 @@ namespace UMMC_tk_network_test_tool
 
         private void password_text_box_TextChanged(object sender, EventArgs e)
         {
-            if (login_text_box.Text == "" || password_text_box.Text == "")
+            if (login_text_box.Text == "" || password_text_box.Text == "" || technician_full_name.Text == "" || service_request_num.Text == "" )
             {
                 this.Ok.Enabled = false;
             }
@@ -78,6 +76,21 @@ namespace UMMC_tk_network_test_tool
             {
                 this.Ok.Enabled = true;
             }
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void technician_full_name_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
