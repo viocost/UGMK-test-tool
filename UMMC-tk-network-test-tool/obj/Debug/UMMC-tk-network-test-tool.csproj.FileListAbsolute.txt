@@ -9,3 +9,14 @@ c:\users\konstantin\documents\visual studio 2013\Projects\UMMC-tk-network-test-t
 c:\users\konstantin\documents\visual studio 2013\Projects\UMMC-tk-network-test-tool\UMMC-tk-network-test-tool\obj\Debug\UMMC-tk-network-test-tool.pdb
 C:\Users\Konstantin\documents\visual studio 2013\Projects\UMMC-tk-network-test-tool\UMMC-tk-network-test-tool\obj\Debug\UMMC_tk_network_test_tool.Popup_exit.resources
 C:\Users\Konstantin\documents\visual studio 2013\Projects\UMMC-tk-network-test-tool\UMMC-tk-network-test-tool\obj\Debug\UMMC_tk_network_test_tool.main_test_form.resources
+C:\Users\Konstantin\Dropbox\UGMK projects\Network_Test_System\UMMC-tk-network-test-tool\bin\Debug\UMMC-tk-network-test-tool.exe.config
+C:\Users\Konstantin\Dropbox\UGMK projects\Network_Test_System\UMMC-tk-network-test-tool\obj\Debug\UMMC-tk-network-test-tool.exe
+C:\Users\Konstantin\Dropbox\UGMK projects\Network_Test_System\UMMC-tk-network-test-tool\obj\Debug\UMMC-tk-network-test-tool.pdb
+C:\Users\Konstantin\Dropbox\UGMK projects\Network_Test_System\UMMC-tk-network-test-tool\bin\Debug\UMMC-tk-network-test-tool.exe
+C:\Users\Konstantin\Dropbox\UGMK projects\Network_Test_System\UMMC-tk-network-test-tool\bin\Debug\UMMC-tk-network-test-tool.pdb
+C:\Users\Konstantin\Dropbox\UGMK projects\Network_Test_System\UMMC-tk-network-test-tool\obj\Debug\UMMC-tk-network-test-tool.csprojResolveAssemblyReference.cache
+C:\Users\Konstantin\Dropbox\UGMK projects\Network_Test_System\UMMC-tk-network-test-tool\obj\Debug\UMMC_tk_network_test_tool.Login_form.resources
+C:\Users\Konstantin\Dropbox\UGMK projects\Network_Test_System\UMMC-tk-network-test-tool\obj\Debug\UMMC_tk_network_test_tool.main_test_form.resources
+C:\Users\Konstantin\Dropbox\UGMK projects\Network_Test_System\UMMC-tk-network-test-tool\obj\Debug\UMMC_tk_network_test_tool.Popup_exit.resources
+C:\Users\Konstantin\Dropbox\UGMK projects\Network_Test_System\UMMC-tk-network-test-tool\obj\Debug\UMMC_tk_network_test_tool.Properties.Resources.resources
+C:\Users\Konstantin\Dropbox\UGMK projects\Network_Test_System\UMMC-tk-network-test-tool\obj\Debug\UMMC-tk-network-test-tool.csproj.GenerateResource.Cache

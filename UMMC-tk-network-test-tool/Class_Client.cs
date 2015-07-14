@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace UMMC_tk_network_test_tool
 {
-    class Client
+    class Client : Client_Side_Tests
     {
         private
             IPAddress default_gateway;
@@ -52,9 +52,14 @@ namespace UMMC_tk_network_test_tool
             IPAddress retrun_gateway() {
                 return default_gateway;
             }
-            
 
 
 
+
+
+            public System.Net.NetworkInformation.PingReply ping_test(IPAddress ip)
+            {
+                throw new NotImplementedException();
+            }
     }
 }

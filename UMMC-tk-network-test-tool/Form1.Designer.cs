@@ -1,6 +1,6 @@
 ﻿namespace UMMC_tk_network_test_tool
 {
-    partial class Form1
+    partial class Login_form
     {
         /// <summary>
         /// Required designer variable.
@@ -145,7 +145,7 @@
             this.label4.Text = "№ заявки:";
             this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
-            // Form1
+            // Login_form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -161,7 +161,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.login_text_box);
             this.Controls.Add(this.password_text_box);
-            this.Name = "Form1";
+            this.Name = "Login_form";
             this.Text = "УГМК Телеком | Утилита для тестирования сетей | Login:";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);

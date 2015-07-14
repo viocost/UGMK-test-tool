@@ -81,7 +81,7 @@
             this.begin_test.TabIndex = 3;
             this.begin_test.Text = "Начать тест!";
             this.begin_test.UseVisualStyleBackColor = true;
-            this.begin_test.Click += new System.EventHandler(this.button1_Click);
+            this.begin_test.Click += new System.EventHandler(this.beginTest_Click);
             // 
             // button1
             // 
