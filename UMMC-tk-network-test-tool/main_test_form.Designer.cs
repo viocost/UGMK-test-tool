@@ -158,6 +158,7 @@
             this.Controls.Add(this.Output_console);
             this.Name = "main_test_form";
             this.Text = "УГМК Телеком | Утилита для теста оборудования";
+            this.Load += new System.EventHandler(this.main_test_form_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

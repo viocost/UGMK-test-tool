@@ -14,21 +14,50 @@ using System.Net;
 
 
 
+
 namespace UMMC_tk_network_test_tool
 {
     public partial class main_test_form : Form
     {
         private
             Client client;
-            Results results;
-            Mutex buttonLock;
+           
 
-        public main_test_form()
+
+        public main_test_form(String tech_name, String service_request_num)
         {
             InitializeComponent();
-            client = new Client();
-            results = new Results();
-            buttonLock = new Mutex(true, "demo");
+
+            //TODO
+            //wait disable main form
+            
+            
+            client = new Client(tech_name, service_request_num);
+            
+            //TODO
+
+            if (client.request_parameters())
+            {
+                if (client.check_gateway())
+                {
+                    MessageBox.Show("Отсутствует соединение со шлюзом!");
+                }
+                else
+                {
+                    MessageBox.Show("Отсутствует соединение с сервером!"); 
+                }
+            }
+
+
+            
+            //SEND REQUEST TO A SERVER VIA JSON SERIALIZER
+            //IF SERVER DOES NOT RESPOND - PING GATEWAY
+            //DISPLAY RESULTS TO A USER
+
+
+            //TODO GET RESPOND FROM A SERVER WITH PARAMETERS, PARSE THEM
+
+           
             
         }
 
@@ -69,13 +98,14 @@ namespace UMMC_tk_network_test_tool
 
         private void beginTest_Click(object sender, EventArgs e)
         {
-            Thread run_test = new Thread(run_the_test);
-            run_test.Start();
+            Console.WriteLine("About to send data!");
+            this.client.get_test_data("http://localhost:8080/target", "message");
+            
         }
 
         private void run_the_test()
         {
-            lock (this)
+           
             {
                 this.begin_test.Enabled = false;
             }
@@ -84,13 +114,18 @@ namespace UMMC_tk_network_test_tool
                 LocalPing();
                 System.Threading.Thread.Sleep(2000);
             }
-            lock (this)
+           
             {
                 this.begin_test.Enabled = true;
             }
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void main_test_form_Load(object sender, EventArgs e)
         {
 
         }

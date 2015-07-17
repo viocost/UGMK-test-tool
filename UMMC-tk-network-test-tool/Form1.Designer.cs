@@ -47,7 +47,7 @@
             this.password_text_box.Location = new System.Drawing.Point(309, 209);
             this.password_text_box.Name = "password_text_box";
             this.password_text_box.Size = new System.Drawing.Size(512, 20);
-            this.password_text_box.TabIndex = 0;
+            this.password_text_box.TabIndex = 2;
             this.password_text_box.UseSystemPasswordChar = true;
             this.password_text_box.TextChanged += new System.EventHandler(this.password_text_box_TextChanged);
             // 
@@ -115,7 +115,7 @@
             this.technician_full_name.Location = new System.Drawing.Point(309, 81);
             this.technician_full_name.Name = "technician_full_name";
             this.technician_full_name.Size = new System.Drawing.Size(512, 20);
-            this.technician_full_name.TabIndex = 7;
+            this.technician_full_name.TabIndex = 0;
             this.technician_full_name.TextChanged += new System.EventHandler(this.technician_full_name_TextChanged);
             // 
             // label3
@@ -133,7 +133,8 @@
             this.service_request_num.Location = new System.Drawing.Point(309, 277);
             this.service_request_num.Name = "service_request_num";
             this.service_request_num.Size = new System.Drawing.Size(163, 20);
-            this.service_request_num.TabIndex = 9;
+            this.service_request_num.TabIndex = 3;
+            this.service_request_num.TextChanged += new System.EventHandler(this.service_request_num_TextChanged);
             // 
             // label4
             // 
@@ -163,6 +164,7 @@
             this.Controls.Add(this.password_text_box);
             this.Name = "Login_form";
             this.Text = "УГМК Телеком | Утилита для тестирования сетей | Login:";
+            this.Load += new System.EventHandler(this.Login_form_Load);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
