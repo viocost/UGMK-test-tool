@@ -61,32 +61,8 @@ namespace UMMC_tk_network_test_tool
             
         }
 
-        // Ping procedure
-        public void LocalPing ()
-        {
-            // Ping's the local machine.
-            Ping pingSender = new Ping ();
-            IPAddress address = IPAddress.Parse("185.13.132.211");
-
-            PingReply reply = client.ping_test(IPAddress.Parse("192.168.1.1"));
-                //pingSender.Send (address);
-
-            if (reply.Status == IPStatus.Success)
-            {
-                lock (this){
-                this.Output_console.AppendText("Address: " + reply.Address.ToString() + "\r\n");
-                this.Output_console.AppendText("RoundTrip time: " + reply.RoundtripTime + "\r\n");
-                this.Output_console.AppendText("Time to live: " + reply.Options.Ttl + "\r\n");
-                this.Output_console.AppendText("Don't fragment: " + reply.Options.DontFragment + "\r\n");
-                this.Output_console.AppendText("Buffer size: " + reply.Buffer.Length + "\r\n\r\n");
-                this.Output_console.AppendText("=============================\r\n\r\n");
-                }
-            }
-            else
-            {
-                this.Output_console.AppendText ("Error occured");
-            } 
-         }
+       
+      
 
 
 
@@ -100,6 +76,8 @@ namespace UMMC_tk_network_test_tool
         {
             Console.WriteLine("About to send data!");
             this.client.get_test_data("http://localhost:8080/target", "message");
+           
+            this.client.beginTest(this);
             
         }
 
@@ -111,7 +89,7 @@ namespace UMMC_tk_network_test_tool
             }
             for (int i = 0; i < 5; i++)
             {
-                LocalPing();
+                
                 System.Threading.Thread.Sleep(2000);
             }
            
@@ -126,6 +104,21 @@ namespace UMMC_tk_network_test_tool
         }
 
         private void main_test_form_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Output_console_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void outputConsole_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ip_address_box_TextChanged(object sender, EventArgs e)
         {
 
         }

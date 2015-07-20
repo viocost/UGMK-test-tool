@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UMMC_tk_network_test_tool
@@ -12,7 +13,7 @@ namespace UMMC_tk_network_test_tool
     public class ClientTest
     {
         [TestMethod]
-        public void json_encode()
+        public String json_encode()
         {
             
            Client client = new Client("Ivanov", "123");
@@ -32,7 +33,7 @@ namespace UMMC_tk_network_test_tool
            String result = client.json_encode(results);
 
            Console.WriteLine(results);
-           
+           return result;
 
         }
 
@@ -40,19 +41,11 @@ namespace UMMC_tk_network_test_tool
         public void send_data_to_server() {
 
             Client client = new Client("Ivanov", "123");
-            client.get_test_data("http://localhost:8080/target", "message");
+            String data = this.json_encode();
+            String respond = client.send_data_to_server("192.168.1.11", data);
             
-        
-        }
-        [TestMethod]
-        public void test_parse() {
-            Client client = new Client("Ivanov", "123");
-            client.parameters.parseJsonData("123");
 
-            Console.WriteLine(client.parameters.clientIP);
-            Console.WriteLine(client.parameters.DNSservers);
-            Console.WriteLine(client.parameters.remotehostsR1);
-            Console.WriteLine(client.parameters.localhostsR1);
+
 
         
         }

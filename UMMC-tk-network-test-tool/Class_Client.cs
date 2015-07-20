@@ -8,6 +8,13 @@ using System.Windows.Forms;
 using System.Net.Sockets;
 using Newtonsoft.Json;
 using System.Net.Http;
+using Json;
+using System.Diagnostics;
+using System.Web;
+
+
+
+
 
 
 namespace UMMC_tk_network_test_tool
@@ -35,19 +42,22 @@ namespace UMMC_tk_network_test_tool
             results = new Results();
             this.set_tech_name(tech_name);
             this.set_service_request_number(service_request_num);
-
+            this.parameters = new TestParameters();
         }
 
 
 
         private
-            IPAddress default_gateway = IPAddress.Parse("192.168.0.1");
+        IPAddress default_gateway = IPAddress.Parse("192.168.0.1");
         List<IPAddress> local_hosts2Ping;
         List<IPAddress> remote_hosts2Ping;
         List<IPAddress> dns_servers;
         String technician_full_name;
         String service_request_number;
         Results results;
+        String paramData;
+        public TestParameters parameters;
+       
 
         public
             //setters, adders
@@ -62,37 +72,37 @@ namespace UMMC_tk_network_test_tool
                 MessageBox.Show(e.Message);
             }
         }
-        void set_default_gateway(IPAddress ip)
-        {
-            default_gateway = ip;
-        }
-        void add_ip_to_list(List<IPAddress> list, IPAddress address)
-        {
-            list.Add(address);
-        }
-        void set_tech_name(String name)
-        {
-            this.technician_full_name = name;
-        }
-        void set_service_request_number(String service_request_num)
-        {
-            this.service_request_number = service_request_num;
-        }
+            void set_default_gateway(IPAddress ip)
+            {
+                default_gateway = ip;
+            }
+            void add_ip_to_list(List<IPAddress> list, IPAddress address)
+            {
+                list.Add(address);
+            }
+            void set_tech_name(String name)
+            {
+                this.technician_full_name = name;
+            }
+            void set_service_request_number(String service_request_num)
+            {
+                this.service_request_number = service_request_num;
+            }
 
 
         //getters
-        String get_tech_name()
-        {
-            return technician_full_name;
-        }
-        String get_service_request_number()
-        {
-            return service_request_number;
-        }
-        IPAddress retrun_gateway()
-        {
-            return default_gateway;
-        }
+            String get_tech_name()
+            {
+                return technician_full_name;
+            }
+            String get_service_request_number()
+            {
+                return service_request_number;
+            }
+            IPAddress retrun_gateway()
+            {
+                return default_gateway;
+            }
 
 
         //TODO
@@ -110,13 +120,42 @@ namespace UMMC_tk_network_test_tool
             throw new NotImplementedException();
         }
 
+       
+        
         //TODO
-
-
         public System.Net.NetworkInformation.PingReply ping_test(IPAddress ip)
         {
-            throw new NotImplementedException();
-        }
+            Console.WriteLine("Testing " + ip.ToString());
+
+            return null;
+        //      public void LocalPing ()
+        //{
+        //    // Ping's the local machine.
+        //    Ping pingSender = new Ping ();
+        //    IPAddress address = IPAddress.Parse("185.13.132.211");
+
+        //    PingReply reply = client.ping_test(IPAddress.Parse("192.168.1.1"));
+        //        //pingSender.Send (address);
+
+        //    if (reply.Status == IPStatus.Success)
+        //    {
+        //        lock (this){
+        //        this.Output_console.AppendText("Address: " + reply.Address.ToString() + "\r\n");
+        //        this.Output_console.AppendText("RoundTrip time: " + reply.RoundtripTime + "\r\n");
+        //        this.Output_console.AppendText("Time to live: " + reply.Options.Ttl + "\r\n");
+        //        this.Output_console.AppendText("Don't fragment: " + reply.Options.DontFragment + "\r\n");
+        //        this.Output_console.AppendText("Buffer size: " + reply.Buffer.Length + "\r\n\r\n");
+        //        this.Output_console.AppendText("=============================\r\n\r\n");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        this.Output_console.AppendText ("Error occured");
+        //    } 
+        // }
+            
+           
+      }
 
 
 
@@ -145,6 +184,10 @@ namespace UMMC_tk_network_test_tool
             return new string(chars);
         }
 
+       
+       
+        
+
 
         public async void get_test_data(String server, String message)
         {
@@ -157,21 +200,51 @@ namespace UMMC_tk_network_test_tool
             HttpClient client = new HttpClient();
             HttpResponseMessage response = await client.PostAsync(server, content);
             if (response.IsSuccessStatusCode) {
-                String response1 = await response.Content.ReadAsStringAsync();
-                Console.WriteLine("Success!\r\n" + response1);
-                
+                this.paramData = await response.Content.ReadAsStringAsync();
+                Console.WriteLine("Success!\r\n" + this.paramData);
+                this.parameters.parseJsonData(paramData);
+               
             }
             else 
             { 
                 Console.WriteLine("Something went wrong...");
+                return;
             }
+
+           
+           
 
 
             
-
+            
+            
         }
 
 
+
+        internal void beginTest(main_test_form form)
+        {
+            //throw new NotImplementedException();client 
+            Console.WriteLine("Client ip is: " + parameters.clientIP);
+            foreach (IPAddress ip in this.parameters.localhostsR1)
+            {
+                Console.WriteLine("Testing locals...");
+                ping_test(ip);
+                
+            }
+            foreach (IPAddress ip in this.parameters.remotehostsR1)
+            {
+                Console.WriteLine("Testing remotes...");
+                ping_test(ip);
+            }
+            foreach (IPAddress ip in this.parameters.DNSservers)
+            {
+                Console.WriteLine("Testing DNS...");
+                ping_test(ip);
+            }
+
+            return;
+        }
     }
         // Old TCP code
 

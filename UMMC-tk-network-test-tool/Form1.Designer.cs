@@ -162,6 +162,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.login_text_box);
             this.Controls.Add(this.password_text_box);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "Login_form";
             this.Text = "УГМК Телеком | Утилита для тестирования сетей | Login:";
             this.Load += new System.EventHandler(this.Login_form_Load);

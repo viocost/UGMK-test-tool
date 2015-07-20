@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Jv.Json</id>
+    <version>1.2.2</version>
+    <authors>joao</authors>
+    <owners>joao</owners>
+    <projectUrl>https://github.com/jvlppm/Json</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Json serializer and deserializer for .net</description>
+    <releaseNotes>Support for WinRT project types.</releaseNotes>
+    <copyright>Copyright 2012</copyright>
+    <tags>json c# .net 4.0 3.5 winrt dynamic serializer deserializer</tags>
+  </metadata>
+</package>
