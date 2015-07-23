@@ -13,6 +13,8 @@ using System.Net;
 
 
 
+public delegate void updateConsole(Color color, string text, Boolean newLine);
+public delegate void updateProgressBar(int property);
 
 
 namespace UMMC_tk_network_test_tool
@@ -21,63 +23,73 @@ namespace UMMC_tk_network_test_tool
     {
         private
             Client client;
+            bool dataReceived = false;
            
 
 
         public main_test_form(String tech_name, String service_request_num)
         {
             InitializeComponent();
+            
+
 
             //TODO
             //wait disable main form
-            
-            
             client = new Client(tech_name, service_request_num);
-            
-            //TODO
-
-            if (client.request_parameters())
-            {
-                if (client.check_gateway())
-                {
-                    MessageBox.Show("Отсутствует соединение со шлюзом!");
-                }
-                else
-                {
-                    MessageBox.Show("Отсутствует соединение с сервером!"); 
-                }
-            }
-
-
-            
+                      
             //SEND REQUEST TO A SERVER VIA JSON SERIALIZER
             //IF SERVER DOES NOT RESPOND - PING GATEWAY
             //DISPLAY RESULTS TO A USER
 
 
-            //TODO GET RESPOND FROM A SERVER WITH PARAMETERS, PARSE THEM
-
-           
-            
+            //TODO GET RESPOND FROM A SERVER WITH PARAMETERS, PARSE THEM           
         }
 
-       
-      
 
 
+
+
+        public delegate Task<int> runTest(main_test_form form);
 
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }
-
-        private void beginTest_Click(object sender, EventArgs e)
+        internal void enableBegin() {
+            this.begin_test.Enabled = true;
+        }
+        private async void  beginTest_Click(object sender, EventArgs e)
         {
             Console.WriteLine("About to send data!");
-            this.client.get_test_data("http://localhost:8080/target", "message");
+            this.progressBar1.Value = 0;
+            
+
+
+            if (!dataReceived)
+            {
+                await this.client.get_test_data("http://localhost:8080/target", "message");
+                dataReceived = true;
+            }
+            this.begin_test.Enabled = false;
+
+
+
+            client.beginTest(this);
+
+
            
-            this.client.beginTest(this);
+
+            
+
+
+            
+
+
+           
+            
+
+            
             
         }
 
@@ -115,7 +127,7 @@ namespace UMMC_tk_network_test_tool
 
         private void outputConsole_TextChanged(object sender, EventArgs e)
         {
-
+            
         }
 
         private void ip_address_box_TextChanged(object sender, EventArgs e)
@@ -123,6 +135,44 @@ namespace UMMC_tk_network_test_tool
 
         }
 
+        internal void fillProgressBar(int property) {
+            this.progressBar1.Step = property;
+
+            this.progressBar1.PerformStep();
         }
+        internal void outputToConsole (Color color, string text, Boolean newLine)
+        {
+
+            if (newLine)
+            {
+                outputConsole.SelectionFont = new Font("Tahoma", 10, FontStyle.Bold);
+                outputConsole.SelectionColor = color;
+               
+                outputConsole.AppendText("\n"+text);
+            }
+            else
+            {
+                outputConsole.SelectionFont = new Font("Tahoma", 10, FontStyle.Bold);
+                outputConsole.SelectionColor = color;
+               
+                outputConsole.AppendText(text);
+            }
+           
+
+            
+            
+            
+        }
+
+        private void progressBar1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
 }
 

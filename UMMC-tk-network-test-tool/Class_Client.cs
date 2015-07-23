@@ -11,6 +11,9 @@ using System.Net.Http;
 using Json;
 using System.Diagnostics;
 using System.Web;
+using System.IO;
+using System.Net.NetworkInformation;
+using System.Threading;
 
 
 
@@ -105,58 +108,54 @@ namespace UMMC_tk_network_test_tool
             }
 
 
-        //TODO
-        public bool request_parameters()
-        {
-            // throw new NotImplementedException();
-
-            //Connect("192.168.1.11", "Wassup server?");
-            return false;
-        }
-
-        //TODO
-        public bool check_gateway()
-        {
-            throw new NotImplementedException();
-        }
-
-       
         
-        //TODO
-        public System.Net.NetworkInformation.PingReply ping_test(IPAddress ip)
+        public async Task<System.Net.NetworkInformation.PingReply> ping_test(IPAddress ip)
         {
-            Console.WriteLine("Testing " + ip.ToString());
-
-            return null;
-        //      public void LocalPing ()
-        //{
-        //    // Ping's the local machine.
-        //    Ping pingSender = new Ping ();
-        //    IPAddress address = IPAddress.Parse("185.13.132.211");
-
-        //    PingReply reply = client.ping_test(IPAddress.Parse("192.168.1.1"));
-        //        //pingSender.Send (address);
-
-        //    if (reply.Status == IPStatus.Success)
-        //    {
-        //        lock (this){
-        //        this.Output_console.AppendText("Address: " + reply.Address.ToString() + "\r\n");
-        //        this.Output_console.AppendText("RoundTrip time: " + reply.RoundtripTime + "\r\n");
-        //        this.Output_console.AppendText("Time to live: " + reply.Options.Ttl + "\r\n");
-        //        this.Output_console.AppendText("Don't fragment: " + reply.Options.DontFragment + "\r\n");
-        //        this.Output_console.AppendText("Buffer size: " + reply.Buffer.Length + "\r\n\r\n");
-        //        this.Output_console.AppendText("=============================\r\n\r\n");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        this.Output_console.AppendText ("Error occured");
-        //    } 
-        // }
             
-           
+            Console.WriteLine(ip.ToString());
+            Ping pingSender = new Ping();
+            string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+            byte[] buffer = Encoding.ASCII.GetBytes(data);
+            PingOptions options = new PingOptions(64, true);
+            
+            PingReply reply =  pingSender.Send(ip, 3000, buffer, options);
+            return reply;
+    
       }
+        
+        
+        public String CheckSpeed()
+        {
+            const string tempfile = "tempfile.tmp";
+            System.Net.WebClient webClient = new System.Net.WebClient();
 
+            Console.WriteLine("Downloading file....");
+
+            System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
+            webClient.DownloadFile("http://mirror.internode.on.net/pub/test/10meg.test", tempfile);
+            sw.Stop();
+            long speed;
+            double result;
+            FileInfo fileInfo = new FileInfo(tempfile);
+            if (sw.Elapsed.Seconds != 0){              
+                speed = (fileInfo.Length / sw.Elapsed.Seconds);
+                result = (double)speed * 0.000008;
+            }
+            else
+                result = 0;
+            Console.WriteLine("Download duration: {0}", sw.Elapsed);
+            Console.WriteLine("File size: {0} bytes", fileInfo.Length.ToString("N0"));
+            try
+            {
+                FileInfo currentFile = new FileInfo(tempfile);
+                currentFile.Delete();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error on file: {0}\r\n   {1}", tempfile, ex.Message);
+            }
+            return result.ToString();   
+        }
 
 
 
@@ -189,7 +188,7 @@ namespace UMMC_tk_network_test_tool
         
 
 
-        public async void get_test_data(String server, String message)
+        public async Task<int> get_test_data(String server, String message)
         {
             var HTTPmessage = new Dictionary<String, String>{
                 {"parameters","parameters"}
@@ -208,99 +207,147 @@ namespace UMMC_tk_network_test_tool
             else 
             { 
                 Console.WriteLine("Something went wrong...");
-                return;
+                return -1;
             }
-
-           
-           
-
-
-            
-            
-            
+            return 0;
         }
 
 
 
-        internal void beginTest(main_test_form form)
+        internal async Task<int> beginTest(main_test_form form)
         {
-            //throw new NotImplementedException();client 
-            Console.WriteLine("Client ip is: " + parameters.clientIP);
-            foreach (IPAddress ip in this.parameters.localhostsR1)
+
+            updateConsole n = new updateConsole(form.outputToConsole);
+            n(System.Drawing.Color.Black, "Тестируем...\r\n\r\n", true);
+            
+            n(System.Drawing.Color.Black, "Тестируем...\r\n\r\n", true);
+            n(System.Drawing.Color.Black, "Проверяем локальные хосты...\r\n", true);
+            
+
+            await pingLocalHostsMain(form);
+
+            n(System.Drawing.Color.Black, "\r\n\r\nПроверяем внешние хосты...\r\n", true);
+            await pingRemotelHostsMain(form);
+            n(System.Drawing.Color.Black, "Проверяем скорость...\r\n", true);
+            String response = this.CheckSpeed();
+
+
+            n(System.Drawing.Color.Black, "Скорость закачки: ", true);
+            n(System.Drawing.Color.Green, response + " Мб/с", false);
+            updateProgressBar g = new updateProgressBar(form.fillProgressBar);
+            g(50);
+            return 0;
+        }
+
+        private async Task<int> pingRemotelHostsMain(main_test_form form)
+        {
+            for (int i = 0; i < this.parameters.remotehostsR1.Count(); i++)
             {
-                Console.WriteLine("Testing locals...");
-                ping_test(ip);
+                int fraction;
+                try
+                {
+                    fraction = 50 / this.parameters.remotehostsR1.Count();
+                }
+                catch (Exception e)
+                {
+
+                    fraction = 50;
+                }
+                updateProgressBar g = new updateProgressBar(form.fillProgressBar);
+                g(fraction);
+                String host = this.parameters.remotehostsR1[i].ToString();
+
+                long roundTrip = 0;
+
+                int count = 0;
+                int failures = 0;
+                for (int j = 0; j < 5; j++)
+                {
+                    PingReply reply = await ping_test(this.parameters.remotehostsR1[i]);
+                    if (reply.Status == IPStatus.Success)
+                    {
+                        roundTrip += reply.RoundtripTime;
+                        count++;
+
+                    }
+                    else
+                    {
+                        failures++;
+                    }
+                    Thread.Sleep(500);
+                }
+
+                updateConsole n = new updateConsole(form.outputToConsole);
+
+                n(System.Drawing.Color.Black, " ", true);
+                n(System.Drawing.Color.Black, "Хост: " + host, true);
+                n(System.Drawing.Color.Red, "Ошибок: " + failures + " || ", true);
+                if (count > 0)
+                    n(System.Drawing.Color.Green, "Среднее время отклика: " + ((roundTrip * 1.0) / count) + "мс", false);
+                else
+                    n(System.Drawing.Color.Red, "Хост не ответил ни разу.", false);
+
+            }
+            form.enableBegin();
+            return 0;
+        }
+
+
+
+
+
+        private async Task<int> pingLocalHostsMain(main_test_form form)
+        {
+            for (int i = 0; i < this.parameters.localhostsR1.Count(); i++)
+            {
+                int fraction;
+                try
+                {
+                   fraction  = 50 / this.parameters.localhostsR1.Count();
+                }
+                catch (Exception e)
+                {
+
+                    fraction = 50;
+                }
+                updateProgressBar g = new updateProgressBar(form.fillProgressBar);
+                g(fraction);
+                String host = this.parameters.localhostsR1[i].ToString();
+
+                long roundTrip = 0;
+
+                int count = 0;
+                int failures = 0;
+                for (int j = 0; j < 5; j++)
+                {
+                    PingReply reply = await ping_test(this.parameters.localhostsR1[i]);
+                    if (reply.Status == IPStatus.Success)
+                    {
+                        roundTrip += reply.RoundtripTime;
+                        count++;
+
+                    }
+                    else
+                    {
+                        failures++;
+                    }
+                    Thread.Sleep(2000);
+                }
+                updateConsole n = new updateConsole(form.outputToConsole);
+                n(System.Drawing.Color.Black, " ", true);
+                n(System.Drawing.Color.Black, "Хост: " + host, true);
+                n(System.Drawing.Color.Red, "Ошибок: " + failures + " || ", true);
+                if (count > 0)
+                    n(System.Drawing.Color.Green, "Среднее время отклика: " + ((roundTrip * 1.0) / count) + "мс", false);
+                else
+                    n(System.Drawing.Color.Red, "Хост не ответил ни разу.", false);
                 
             }
-            foreach (IPAddress ip in this.parameters.remotehostsR1)
-            {
-                Console.WriteLine("Testing remotes...");
-                ping_test(ip);
-            }
-            foreach (IPAddress ip in this.parameters.DNSservers)
-            {
-                Console.WriteLine("Testing DNS...");
-                ping_test(ip);
-            }
-
-            return;
+           
+            return 0;
         }
     }
-        // Old TCP code
-
-        //    try
-        //    {
-        //        // Create a TcpClient. 
-        //        // Note, for this client to work you need to have a TcpServer  
-        //        // connected to the same address as specified by the server, port 
-        //        // combination.
-        //        Int32 port = 9999;
-        //        TcpClient client = new TcpClient(server, port);
-
-        //        // Translate the passed message into ASCII and store it as a Byte array.
-        //        Byte[] data = GetBytes(message);
-
-
-        //        // Get a client stream for reading and writing. 
-        //        //  Stream stream = client.GetStream();
-
-        //        NetworkStream stream = client.GetStream();
-
-        //        // Send the message to the connected TcpServer. 
-        //        stream.Write(data, 0, data.Length);
-
-        //        Console.WriteLine("Sent: {0}", message);
-
-        //        // Receive the TcpServer.response. 
-
-        //        // Buffer to store the response bytes.
-        //        data = new Byte[256];
-
-        //        // String to store the response ASCII representation.
-        //        String responseData = String.Empty;
-
-        //        // Read the first batch of the TcpServer response bytes.
-        //        Int32 bytes = stream.Read(data, 0, data.Length);
-        //        responseData = GetString(data);
-
-        //        Console.WriteLine("Received: {0}", responseData);
-
-        //        // Close everything.
-        //        stream.Close();
-        //        client.Close();
-        //    }
-        //    catch (ArgumentNullException e)
-        //    {
-        //        Console.WriteLine("ArgumentNullException: {0}", e);
-        //    }
-        //    catch (SocketException e)
-        //    {
-        //        Console.WriteLine("SocketException: {0}", e);
-        //    }
-
-        //    Console.WriteLine("\n Press Enter to continue...");
-        //    Console.Read();
-        //    return null;
-        //}
+        
+           
     
 }

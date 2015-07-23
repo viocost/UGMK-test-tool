@@ -39,6 +39,11 @@
             this.label3 = new System.Windows.Forms.Label();
             this.service_request_num = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.serverIP_box = new System.Windows.Forms.TextBox();
+            this.port_box = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -146,11 +151,65 @@
             this.label4.Text = "№ заявки:";
             this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(12, 126);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(86, 13);
+            this.label5.TabIndex = 11;
+            this.label5.Text = "Адрес сервера:";
+            this.label5.Click += new System.EventHandler(this.label5_Click);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(12, 186);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(35, 13);
+            this.label6.TabIndex = 12;
+            this.label6.Text = "Порт:";
+            this.label6.Click += new System.EventHandler(this.label6_Click);
+            // 
+            // serverIP_box
+            // 
+            this.serverIP_box.Enabled = false;
+            this.serverIP_box.Location = new System.Drawing.Point(12, 149);
+            this.serverIP_box.Name = "serverIP_box";
+            this.serverIP_box.Size = new System.Drawing.Size(100, 20);
+            this.serverIP_box.TabIndex = 13;
+            this.serverIP_box.Text = "<По умолчанию>";
+            this.serverIP_box.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            // 
+            // port_box
+            // 
+            this.port_box.Enabled = false;
+            this.port_box.Location = new System.Drawing.Point(12, 202);
+            this.port_box.Name = "port_box";
+            this.port_box.Size = new System.Drawing.Size(100, 20);
+            this.port_box.TabIndex = 14;
+            this.port_box.Text = "<По умолчанию>";
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(12, 245);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(100, 55);
+            this.button1.TabIndex = 15;
+            this.button1.Text = "Изменить параметры сервера";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            // 
             // Login_form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(975, 329);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.port_box);
+            this.Controls.Add(this.serverIP_box);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.service_request_num);
             this.Controls.Add(this.label3);
@@ -185,6 +244,11 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox service_request_num;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox serverIP_box;
+        private System.Windows.Forms.TextBox port_box;
+        private System.Windows.Forms.Button button1;
     }
 }
 

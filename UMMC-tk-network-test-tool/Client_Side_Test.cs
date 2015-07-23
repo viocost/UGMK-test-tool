@@ -11,7 +11,7 @@ namespace UMMC_tk_network_test_tool
 {
     interface Client_Side_Tests
     {
-        PingReply ping_test(IPAddress ip);
+        Task<PingReply> ping_test(IPAddress ip);
         
         
     }
