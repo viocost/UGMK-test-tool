@@ -218,7 +218,7 @@ namespace UMMC_tk_network_test_tool
         {
 
             updateConsole n = new updateConsole(form.outputToConsole);
-            n(System.Drawing.Color.Black, "Тестируем...\r\n\r\n", true);
+            
             
             n(System.Drawing.Color.Black, "Тестируем...\r\n\r\n", true);
             n(System.Drawing.Color.Black, "Проверяем локальные хосты...\r\n", true);
@@ -232,7 +232,7 @@ namespace UMMC_tk_network_test_tool
             String response = this.CheckSpeed();
 
 
-            n(System.Drawing.Color.Black, "Скорость закачки: ", true);
+            n(System.Drawing.Color.Black, "\r\n\r\nСкорость закачки: (Это может занять некоторое время) ", true);
             n(System.Drawing.Color.Green, response + " Мб/с", false);
             updateProgressBar g = new updateProgressBar(form.fillProgressBar);
             g(50);

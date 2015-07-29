@@ -76,20 +76,7 @@ namespace UMMC_tk_network_test_tool
 
 
             client.beginTest(this);
-
-
-           
-
-            
-
-
-            
-
-
-           
-            
-
-            
+ 
             
         }
 
