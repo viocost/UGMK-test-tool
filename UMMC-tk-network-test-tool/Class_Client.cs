@@ -7,6 +7,7 @@ using System.Net;
 using System.Windows.Forms;
 using System.Net.Sockets;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Net.Http;
 using Json;
 using System.Diagnostics;
@@ -42,7 +43,7 @@ namespace UMMC_tk_network_test_tool
             local_hosts2Ping = new List<IPAddress>();
             remote_hosts2Ping = new List<IPAddress>();
             dns_servers = new List<IPAddress>();
-            results = new Results();
+            
             this.set_tech_name(tech_name);
             this.set_service_request_number(service_request_num);
             this.parameters = new TestParameters();
@@ -57,7 +58,7 @@ namespace UMMC_tk_network_test_tool
         List<IPAddress> dns_servers;
         String technician_full_name;
         String service_request_number;
-        Results results;
+       
         String paramData;
         public TestParameters parameters;
        
@@ -124,11 +125,11 @@ namespace UMMC_tk_network_test_tool
       }
         
         
-        public String CheckSpeed()
+        public String CheckSpeed(Results results)
         {
             const string tempfile = "tempfile.tmp";
             System.Net.WebClient webClient = new System.Net.WebClient();
-
+            
             Console.WriteLine("Downloading file....");
 
             System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
@@ -154,6 +155,8 @@ namespace UMMC_tk_network_test_tool
             {
                 Debug.WriteLine("Error on file: {0}\r\n   {1}", tempfile, ex.Message);
             }
+
+
             return result.ToString();   
         }
 
@@ -184,7 +187,48 @@ namespace UMMC_tk_network_test_tool
         }
 
        
-       
+       public async Task<Object> ASUO_request(main_test_form form, Results results, String server){
+           //TODO 1
+           // Serialize results and prepare HTTP message
+           var message = results.serializeRezults();
+
+
+           var httpWebRequest = (HttpWebRequest)WebRequest.Create(server);
+           httpWebRequest.ContentType = "text/json";
+           httpWebRequest.Method = "POST";
+           
+
+           
+           using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+           {
+               
+               streamWriter.Write(message);
+               streamWriter.Flush();
+               streamWriter.Close();
+           }
+
+           var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+
+
+           //Get test results back and display it on the output console
+
+           using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+           {
+               JObject result = JObject.Parse(streamReader.ReadToEnd());
+
+               //{"Port speed":"auto","Port errors":"Error","Link status":"down"}
+               results.PortSpeed = (String)result["Port speed"];
+               results.PortErrors = (String)result["Port errors"];
+               results.LinkStatus1 = (String)result["Link status"];
+
+           }
+
+
+          
+
+
+           return null;
+       }
         
 
 
@@ -214,49 +258,50 @@ namespace UMMC_tk_network_test_tool
 
 
 
-        internal async Task<int> beginTest(main_test_form form)
+        internal async Task<int> beginTest(main_test_form form, Results results)
         {
 
             updateConsole n = new updateConsole(form.outputToConsole);
-            
-            
-            n(System.Drawing.Color.Black, "Тестируем...\r\n\r\n", true);
+
+            n(System.Drawing.Color.Red, "Внимание!!! Процедура должна занять некоторое время.\r\nПожалуйста дождитесь окончания процедуры.", true);
+            n(System.Drawing.Color.Black, "\r\nТестируем...\r\n\r\n", true);
             n(System.Drawing.Color.Black, "Проверяем локальные хосты...\r\n", true);
             
 
-            await pingLocalHostsMain(form);
+            await pingLocalHostsMain(form, results);
 
             n(System.Drawing.Color.Black, "\r\n\r\nПроверяем внешние хосты...\r\n", true);
-            await pingRemotelHostsMain(form);
-            n(System.Drawing.Color.Black, "Проверяем скорость...\r\n", true);
-            String response = this.CheckSpeed();
+            await pingRemotelHostsMain(form, results);
+            n(System.Drawing.Color.Black, "\r\n\r\nПроверяем скорость...\r\n", true);
+            String response = this.CheckSpeed(results);
 
 
-            n(System.Drawing.Color.Black, "\r\n\r\nСкорость закачки: (Это может занять некоторое время) ", true);
+            n(System.Drawing.Color.Black, "Скорость закачки: (Это может занять некоторое время) ", true);
             n(System.Drawing.Color.Green, response + " Мб/с", false);
             updateProgressBar g = new updateProgressBar(form.fillProgressBar);
-            g(50);
+            g(10);
             return 0;
         }
 
-        private async Task<int> pingRemotelHostsMain(main_test_form form)
+
+
+        private async Task<int> checkDNSServers(main_test_form form, Results results)
         {
-            for (int i = 0; i < this.parameters.remotehostsR1.Count(); i++)
+            for (int i = 0; i < this.parameters.DNSservers.Count(); i++)
             {
                 int fraction;
                 try
                 {
-                    fraction = 50 / this.parameters.remotehostsR1.Count();
+                    fraction = 15 / this.parameters.remotehostsR1.Count();
                 }
                 catch (Exception e)
                 {
-
-                    fraction = 50;
+                    fraction = 15;
                 }
                 updateProgressBar g = new updateProgressBar(form.fillProgressBar);
                 g(fraction);
                 String host = this.parameters.remotehostsR1[i].ToString();
-
+                results.remotehosts_results.Add(host, new Dictionary<String, String>());
                 long roundTrip = 0;
 
                 int count = 0;
@@ -274,8 +319,71 @@ namespace UMMC_tk_network_test_tool
                     {
                         failures++;
                     }
+
                     Thread.Sleep(500);
                 }
+                results.dns_servers[host].Add("Sent packets", count.ToString());
+                results.dns_servers[host].Add("Errors", failures.ToString());
+                results.dns_servers[host].Add("Average response time", ((roundTrip * 1.0) / count).ToString());
+
+                updateConsole n = new updateConsole(form.outputToConsole);
+
+                n(System.Drawing.Color.Black, " ", true);
+                n(System.Drawing.Color.Black, "Сервер: " + host, true);
+                n(System.Drawing.Color.Red, "Ошибок: " + failures + " || ", true);
+                if (count > 0)
+                    n(System.Drawing.Color.Green, "Среднее время отклика: " + ((roundTrip * 1.0) / count) + "мс", false);
+                else
+                    n(System.Drawing.Color.Red, "Сервер не ответил ни разу.", false);
+
+            }
+            
+            return 0;
+        }
+
+
+
+
+        private async Task<int> pingRemotelHostsMain(main_test_form form, Results results)
+        {
+            for (int i = 0; i < this.parameters.remotehostsR1.Count(); i++)
+            {
+                int fraction;
+                try
+                {
+                    fraction = 15 / this.parameters.remotehostsR1.Count();
+                }
+                catch (Exception e)
+                {
+                    fraction = 15;
+                }
+                updateProgressBar g = new updateProgressBar(form.fillProgressBar);
+                g(fraction);
+                String host = this.parameters.remotehostsR1[i].ToString();
+                results.remotehosts_results.Add(host, new Dictionary<String, String>());
+                long roundTrip = 0;
+
+                int count = 0;
+                int failures = 0;
+                for (int j = 0; j < 5; j++)
+                {
+                    PingReply reply = await ping_test(this.parameters.remotehostsR1[i]);
+                    if (reply.Status == IPStatus.Success)
+                    {
+                        roundTrip += reply.RoundtripTime;
+                        count++;
+
+                    }
+                    else
+                    {
+                        failures++;
+                    }
+
+                    Thread.Sleep(500);
+                }
+                results.remotehosts_results[host].Add("Sent packets", count.ToString());
+                results.remotehosts_results[host].Add("Errors", failures.ToString());
+                results.remotehosts_results[host].Add("Average response time", ((roundTrip * 1.0) / count).ToString());
 
                 updateConsole n = new updateConsole(form.outputToConsole);
 
@@ -288,7 +396,7 @@ namespace UMMC_tk_network_test_tool
                     n(System.Drawing.Color.Red, "Хост не ответил ни разу.", false);
 
             }
-            form.enableBegin();
+            
             return 0;
         }
 
@@ -296,23 +404,26 @@ namespace UMMC_tk_network_test_tool
 
 
 
-        private async Task<int> pingLocalHostsMain(main_test_form form)
+
+
+        private async Task<int> pingLocalHostsMain(main_test_form form, Results results)
         {
             for (int i = 0; i < this.parameters.localhostsR1.Count(); i++)
             {
                 int fraction;
                 try
                 {
-                   fraction  = 50 / this.parameters.localhostsR1.Count();
+                   fraction  = 15 / this.parameters.localhostsR1.Count();
                 }
                 catch (Exception e)
                 {
 
-                    fraction = 50;
+                    fraction = 15;
                 }
                 updateProgressBar g = new updateProgressBar(form.fillProgressBar);
                 g(fraction);
                 String host = this.parameters.localhostsR1[i].ToString();
+                results.localhosts_results.Add(host, new Dictionary<String, String>());
 
                 long roundTrip = 0;
 
@@ -331,8 +442,18 @@ namespace UMMC_tk_network_test_tool
                     {
                         failures++;
                     }
-                    Thread.Sleep(2000);
+
+                    
+                    
+                    Thread.Sleep(500);
                 }
+                //Updating results
+                results.localhosts_results[host].Add("Sent packets", count.ToString());
+                results.localhosts_results[host].Add("Errors", failures.ToString());
+                results.localhosts_results[host].Add("Average response time", ((roundTrip * 1.0) / count).ToString());
+
+
+                //Updating console
                 updateConsole n = new updateConsole(form.outputToConsole);
                 n(System.Drawing.Color.Black, " ", true);
                 n(System.Drawing.Color.Black, "Хост: " + host, true);
@@ -345,6 +466,66 @@ namespace UMMC_tk_network_test_tool
             }
            
             return 0;
+        }
+
+        internal void displayFinalResults(main_test_form form, Results results)
+        {
+            updateConsole n = new updateConsole(form.outputToConsole);
+            n(System.Drawing.Color.Black, "\r\nРезультаты из АСУО:\r\n\r\n", true);
+            n(System.Drawing.Color.Black, "\r\nТарифный план: "+results.TariffPlanCheck, true);
+
+         
+            n(System.Drawing.Color.Black, "\r\nСкорость Порта: ", true);
+            n(System.Drawing.Color.Green, results.PortSpeed, false);
+
+            if (results.LinkStatus1.Contains("up"))
+            {
+                n(System.Drawing.Color.Black, "\r\nСтатус линка: ", true);
+                n(System.Drawing.Color.Green, results.LinkStatus1, false);
+            }
+            else {
+                n(System.Drawing.Color.Black, "\r\nСтатус линка: ", true);
+                n(System.Drawing.Color.Red, results.LinkStatus1, false);          
+            }
+
+
+
+            if (results.PortErrors.Contains("Error"))
+            {
+                n(System.Drawing.Color.Black, "\r\nОшибки порта: ", true);
+                n(System.Drawing.Color.Red, results.PortErrors, false);
+            }
+            else
+            {
+
+                n(System.Drawing.Color.Black, "\r\nОшибки порта: ", true);
+                n(System.Drawing.Color.Green, results.PortErrors, false);
+            }
+
+            try {
+                int cableLength = int.Parse(results.CableLength);
+                if (cableLength <= 180)
+                {
+                    n(System.Drawing.Color.Black, "\r\nДлина кабеля: ", true);
+                    n(System.Drawing.Color.Green, "ОК", false);
+                }
+                else throw new Exception();
+ 
+
+            } catch {
+                n(System.Drawing.Color.Black, "\r\nДлина кабеля: ", true);
+                if (results.CableLength.Contains("Нет"))
+                    n(System.Drawing.Color.Red, results.CableLength, false);
+                else
+                    n(System.Drawing.Color.Red, "Error", false);
+            }
+
+
+
+
+
+          
+
         }
     }
         

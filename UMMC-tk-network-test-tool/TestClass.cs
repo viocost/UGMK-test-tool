@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace UMMC_tk_network_test_tool
 {
@@ -21,20 +22,33 @@ namespace UMMC_tk_network_test_tool
            {
                String num = Convert.ToString(i);
                String rem = Convert.ToString(i + 100);
-               results.localhosts_results.Add(num, num);
-               results.remotehosts_results.Add(num, num);
+               
 
-           }
-           results.SomeInt = 9999;
-           results.someString = "HuivRot!";
-
-           
+           } 
            String result = client.json_encode(results);
-
            Console.WriteLine(results);
-           
+        }
+
+
+
+       
+
+      
+
+
+        [TestMethod]
+        public void test_json_inResults() {
+            Results results = new Results();
+            results.RequestNum = "1544";
+            results.TechName = "Иванов Иван Иваныч";
+            results.DownloadSpeed = "15mb/s";
+            JObject data = results.serializeRezults();
+            Console.WriteLine(data.ToString());
+
 
         }
+
+
 
         [TestMethod]
         public void send_data_to_server() {

@@ -23,6 +23,8 @@ namespace UMMC_tk_network_test_tool
     {
         private
             Client client;
+      
+            Results results;
             bool dataReceived = false;
            
 
@@ -31,12 +33,14 @@ namespace UMMC_tk_network_test_tool
         {
             InitializeComponent();
             
-
+         
 
             //TODO
             //wait disable main form
             client = new Client(tech_name, service_request_num);
-                      
+            results = new Results(); 
+   
+     
             //SEND REQUEST TO A SERVER VIA JSON SERIALIZER
             //IF SERVER DOES NOT RESPOND - PING GATEWAY
             //DISPLAY RESULTS TO A USER
@@ -59,25 +63,38 @@ namespace UMMC_tk_network_test_tool
         internal void enableBegin() {
             this.begin_test.Enabled = true;
         }
+        
+        
         private async void  beginTest_Click(object sender, EventArgs e)
         {
             Console.WriteLine("About to send data!");
             this.progressBar1.Value = 0;
-            
 
 
-            if (!dataReceived)
+            try
             {
-                await this.client.get_test_data("http://localhost:8080/target", "message");
-                dataReceived = true;
+                if (!dataReceived)
+                {
+                    await this.client.get_test_data("http://localhost:8080/target", "message");
+                    dataReceived = true;
+                }
+                this.begin_test.Enabled = false;
+
+
+                await client.beginTest(this, results);
+
+                await client.ASUO_request(this, results, "http://localhost:8080/getASUOdata");
+
+                client.displayFinalResults(this, results);
+
             }
-            this.begin_test.Enabled = false;
+            catch (Exception) {
+                
+                Console.WriteLine("Something went wrong");
+                return;
+            }
 
 
-
-            client.beginTest(this);
- 
-            
         }
 
         private void run_the_test()
@@ -159,6 +176,11 @@ namespace UMMC_tk_network_test_tool
         private void label1_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            await client.ASUO_request(this, results, "http://localhost:8080/getASUOdata");
         }
     }
 }
