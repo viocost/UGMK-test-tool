@@ -38,7 +38,10 @@ namespace UMMC_tk_network_test_tool
             //TODO
             //wait disable main form
             client = new Client(tech_name, service_request_num);
-            results = new Results(); 
+            results = new Results();
+            results.TechName = tech_name;
+            results.RequestNum = service_request_num;
+
    
      
             //SEND REQUEST TO A SERVER VIA JSON SERIALIZER
@@ -75,7 +78,7 @@ namespace UMMC_tk_network_test_tool
             {
                 if (!dataReceived)
                 {
-                    await this.client.get_test_data("http://localhost:8080/target", "message");
+                    await this.client.get_test_data(this, "http://localhost:8080/target", "message");
                     dataReceived = true;
                 }
                 this.begin_test.Enabled = false;
@@ -88,8 +91,11 @@ namespace UMMC_tk_network_test_tool
                 client.displayFinalResults(this, results);
 
             }
-            catch (Exception) {
-                
+            catch (Exception ex) {
+                updateConsole n = new updateConsole(this.outputToConsole);
+
+                n(System.Drawing.Color.Red, "Не удалось соединиться с сервером.", true);
+                Console.WriteLine(ex.ToString());
                 Console.WriteLine("Something went wrong");
                 return;
             }
@@ -180,7 +186,7 @@ namespace UMMC_tk_network_test_tool
 
         private async void button1_Click(object sender, EventArgs e)
         {
-            await client.ASUO_request(this, results, "http://localhost:8080/getASUOdata");
+            await client.ASUO_request(this, results, "http://46.160.161.178:8080/getASUOdata");
         }
     }
 }

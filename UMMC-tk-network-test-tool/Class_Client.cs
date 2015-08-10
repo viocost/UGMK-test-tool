@@ -21,6 +21,9 @@ using System.Threading;
 
 
 
+
+
+
 namespace UMMC_tk_network_test_tool
 {
     public class Client : Client_Side_Tests
@@ -125,39 +128,52 @@ namespace UMMC_tk_network_test_tool
       }
         
         
-        public String CheckSpeed(Results results)
+        public List<String> CheckSpeed(Results results)
         {
-            const string tempfile = "tempfile.tmp";
-            System.Net.WebClient webClient = new System.Net.WebClient();
-            
-            Console.WriteLine("Downloading file....");
 
-            System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
-            webClient.DownloadFile("http://mirror.internode.on.net/pub/test/10meg.test", tempfile);
-            sw.Stop();
-            long speed;
-            double result;
-            FileInfo fileInfo = new FileInfo(tempfile);
-            if (sw.Elapsed.Seconds != 0){              
-                speed = (fileInfo.Length / sw.Elapsed.Seconds);
-                result = (double)speed * 0.000008;
-            }
-            else
-                result = 0;
-            Console.WriteLine("Download duration: {0}", sw.Elapsed);
-            Console.WriteLine("File size: {0} bytes", fileInfo.Length.ToString("N0"));
+
+
+            ClassSpeedTest test = new ClassSpeedTest();
+            List<string> result = test.runSpeedTest();
             try
             {
-                FileInfo currentFile = new FileInfo(tempfile);
-                currentFile.Delete();
+                results.DownloadSpeed = result[0];
             }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Error on file: {0}\r\n   {1}", tempfile, ex.Message);
+            catch (Exception ex) {
+                Console.WriteLine("Didn't get the result. Error: " + ex);
             }
 
+            //const string tempfile = "tempfile.tmp";
+            //System.Net.WebClient webClient = new System.Net.WebClient();
+            
+            //Console.WriteLine("Downloading file....");
 
-            return result.ToString();   
+            //System.Diagnostics.Stopwatch sw = System.Diagnostics.Stopwatch.StartNew();
+            //webClient.DownloadFile("http://mirror.internode.on.net/pub/test/10meg.test", tempfile);
+            //sw.Stop();
+            //long speed;
+            //double result;
+            //FileInfo fileInfo = new FileInfo(tempfile);
+            //if (sw.Elapsed.Seconds != 0){              
+            //    speed = (fileInfo.Length / sw.Elapsed.Seconds);
+            //    result = (double)speed * 0.000008;
+            //}
+            //else
+            //    result = 0;
+            //Console.WriteLine("Download duration: {0}", sw.Elapsed);
+            //Console.WriteLine("File size: {0} bytes", fileInfo.Length.ToString("N0"));
+            //try
+            //{
+            //    FileInfo currentFile = new FileInfo(tempfile);
+            //    currentFile.Delete();
+            //}
+            //catch (Exception ex)
+            //{
+            //    Debug.WriteLine("Error on file: {0}\r\n   {1}", tempfile, ex.Message);
+            //}
+
+
+            return result;   
         }
 
 
@@ -232,7 +248,7 @@ namespace UMMC_tk_network_test_tool
         
 
 
-        public async Task<int> get_test_data(String server, String message)
+        public async Task<int> get_test_data(main_test_form form, String server, String message)
         {
             var HTTPmessage = new Dictionary<String, String>{
                 {"parameters","parameters"}
@@ -249,9 +265,14 @@ namespace UMMC_tk_network_test_tool
                
             }
             else 
-            { 
+            {
+                updateConsole n = new updateConsole(form.outputToConsole);
+                n(System.Drawing.Color.Red, "\r\n\r\nНе получилось соединиться с сервером.", true);
+                
+                
                 Console.WriteLine("Something went wrong...");
                 return -1;
+
             }
             return 0;
         }
@@ -273,11 +294,13 @@ namespace UMMC_tk_network_test_tool
             n(System.Drawing.Color.Black, "\r\n\r\nПроверяем внешние хосты...\r\n", true);
             await pingRemotelHostsMain(form, results);
             n(System.Drawing.Color.Black, "\r\n\r\nПроверяем скорость...\r\n", true);
-            String response = this.CheckSpeed(results);
+            List<String> response = this.CheckSpeed(results);
 
 
-            n(System.Drawing.Color.Black, "Скорость закачки: (Это может занять некоторое время) ", true);
-            n(System.Drawing.Color.Green, response + " Мб/с", false);
+            n(System.Drawing.Color.Black, "Скорость закачки: ", true);
+            n(System.Drawing.Color.Green, response[0] + " Мб/с", false);
+            n(System.Drawing.Color.Black, "Скорость выкачки: ", true);
+            n(System.Drawing.Color.Green, response[1] + " Мб/с", false);
             updateProgressBar g = new updateProgressBar(form.fillProgressBar);
             g(10);
             return 0;

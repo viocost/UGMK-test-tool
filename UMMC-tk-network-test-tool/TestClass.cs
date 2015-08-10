@@ -49,15 +49,13 @@ namespace UMMC_tk_network_test_tool
         }
 
 
-
         [TestMethod]
-        public void send_data_to_server() {
+        public void test_python() {
+            ClassSpeedTest py = new ClassSpeedTest();
+            py.runSpeedTest();
 
-            Client client = new Client("Ivanov", "123");
-            client.get_test_data("http://localhost:8080/target", "message");
-            
-        
         }
+      
         [TestMethod]
         public void test_parse() {
             Client client = new Client("Ivanov", "123");
